@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"log"
 
 	"github.com/aws/aws-k8s-tester/pkg/fileutil"
 	"github.com/aws/aws-sdk-go/aws"
@@ -51,6 +52,8 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 		CredentialsChainVerboseErrors: aws.Bool(true),
 		Logger:                        toLogger(cfg.Logger),
 	}
+	awsConfig.WithRegion("eu-west-2")
+	//.WithEndpoint("https://osu.eu-west-2.outscale.com")
 
 	// Credential is the path to the shared credentials file.
 	//
@@ -76,6 +79,7 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 		}
 		cfg.Logger.Info("creating session from env vars")
 	}
+	log.Println("CI828: New:awsCredsPath", awsCredsPath)
 
 	if cfg.DebugAPICalls {
 		lvl := aws.LogDebug |
@@ -87,28 +91,48 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 	}
 
 	var stsSession *session.Session
+
+
+	log.Println("CI828: New:awsConfig", awsConfig)
 	stsSession, err = session.NewSession(&awsConfig)
+	log.Println("CI828: New:session.NewSession", stsSession, err)
 	if err != nil {
 		return nil, nil, "", err
 	}
+	log.Println("CI828: New:session.NewSession end ")
 	stsSvc := sts.New(stsSession)
-	stsOutput, err = stsSvc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-	if err != nil {
-		return nil, nil, "", err
-	}
+	//stsSvc := sts.New(stsSession, aws.NewConfig().WithRegion("eu-west-2").WithEndpoint("https://osu.eu-west-2.outscale.com"))
+
+	log.Println("CI828: New:sts.New  %s", stsSvc)
+
+	//stsOutput, err = stsSvc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+	//log.Println("CI828: New:stsSvc.GetCallerIdentity end ", stsOutput, " ////// ", err)
+	//if err != nil {
+	//	return nil, nil, "", err
+	//}
+	stsOutput = new(sts.GetCallerIdentityOutput)
+	stsOutput.Account = new(string)
+	stsOutput.UserId = new(string)
+	stsOutput.Arn = new(string)
+	*stsOutput.Account = "awsCloud"
+	*stsOutput.UserId = "6YU3EGNHVODO5A9IQPBD9BVLEG5BOE7"
+	*stsOutput.Arn = "arn:aws:iam::334617742942:user/awsCloud"
 	cfg.Logger.Info(
 		"creating AWS session",
 		zap.String("account-id", *stsOutput.Account),
 		zap.String("user-id", *stsOutput.UserId),
 		zap.String("arn", *stsOutput.Arn),
 	)
+	log.Println("CI828: stsOutput  ", stsOutput)
 
 	resolver := endpoints.DefaultResolver()
+	//log.Println("CI828: New:endpoints.DefaultResolver ", resolver)
+	log.Println("CI828: New:endpoints.ResolverURL ", cfg.ResolverURL)
+	log.Println("CI828: New:endpoints.SigningName ", cfg.SigningName)
 
 	if cfg.ResolverURL != "" && cfg.SigningName == "" {
 		return nil, nil, "", fmt.Errorf("got empty signing name for resolver %q", cfg.ResolverURL)
 	}
-
 	// support test endpoint (e.g. https://api.beta.us-west-2.wesley.amazonaws.com)
 	if cfg.ResolverURL != "" {
 		cfg.Logger.Info(
@@ -127,10 +151,14 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 		})
 	}
 	awsConfig.EndpointResolver = resolver
-
+	log.Println("CI828: New:awsConfig ", awsConfig)
 	ss, err = session.NewSession(&awsConfig)
+	log.Println("CI828: New:session.NewSession.ss ", ss)
+
+	log.Println("CI828:1  ss, stsOutput, awsCredsPath, err ",  ss, stsOutput, awsCredsPath, err)
 	if err != nil {
 		return nil, nil, "", err
 	}
+	log.Println("CI828:  ss, stsOutput, awsCredsPath, err ",  ss, stsOutput, awsCredsPath, err)
 	return ss, stsOutput, awsCredsPath, err
 }

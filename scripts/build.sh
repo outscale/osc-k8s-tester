@@ -26,8 +26,8 @@ mkdir -p ./bin
 
 for os in linux darwin; do
   CGO_ENABLED=0 GOOS=${os} GOARCH=$(go env GOARCH) \
-    go build -v \
-    -ldflags "-s -w \
+    go build -v -gcflags "-N -l" \
+    -ldflags " \
     -X github.com/aws/aws-k8s-tester/version.GitCommit=${GIT_COMMIT} \
     -X github.com/aws/aws-k8s-tester/version.ReleaseVersion=${RELEASE_VERSION} \
     -X github.com/aws/aws-k8s-tester/version.BuildTime=${BUILD_TIME}" \

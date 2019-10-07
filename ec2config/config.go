@@ -255,7 +255,7 @@ const envPfx = "AWS_K8S_TESTER_EC2_"
 //  - make sure to check both
 var defaultConfig = Config{
 	EnvPrefix: envPfx,
-	AWSRegion: "us-west-2",
+	AWSRegion: "eu-west-2",
 
 	DestroyAfterCreate: false,
 	DestroyWaitTime:    time.Minute,
@@ -299,7 +299,7 @@ var defaultConfig = Config{
 	KeyCreateSkip: false,
 	KeyCreated:    false,
 
-	VPCCIDR: "192.168.0.0/16",
+	VPCCIDR: "10.0.0.0/16",
 	IngressRulesTCP: map[string]string{
 		"22": "0.0.0.0/0",
 	},

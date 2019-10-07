@@ -13,6 +13,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"log"
 
 	"github.com/aws/aws-k8s-tester/ec2config"
 	"github.com/aws/aws-k8s-tester/ec2config/plugins"
@@ -72,10 +73,12 @@ type embedded struct {
 
 // NewDeployer creates a new EKS deployer.
 func NewDeployer(cfg *ec2config.Config) (Deployer, error) {
+	log.Println("CI823 : NewDeployer: cfg: %s", cfg)
+	log.Println("CI823 : ValidateAndSetDefaults start")
 	if err := cfg.ValidateAndSetDefaults(); err != nil {
 		return nil, err
 	}
-
+	log.Println("CI823 : ValidateAndSetDefaults end")
 	now := time.Now().UTC()
 
 	lcfg := logutil.AddOutputPaths(logutil.DefaultZapLoggerConfig, cfg.LogOutputs, cfg.LogOutputs)
@@ -91,22 +94,29 @@ func NewDeployer(cfg *ec2config.Config) (Deployer, error) {
 		cfg:       cfg,
 		s3Buckets: make(map[string]struct{}),
 	}
-
+	log.Println("CI823 : awsCfg start")
 	awsCfg := &awsapi.Config{
 		Logger:        md.lg,
 		DebugAPICalls: cfg.LogLevel == "debug",
 		Region:        cfg.AWSRegion,
 	}
+	log.Println("CI823 : awsCfg end %s", awsCfg)
 	var stsOutput *sts.GetCallerIdentityOutput
 	md.ss, stsOutput, _, err = awsapi.New(awsCfg)
+	log.Println("CI823 : awsCfg end md.ss, %s", md.ss, stsOutput, err)
 	if err != nil {
 		return nil, err
 	}
 	md.cfg.AWSAccountID = *stsOutput.Account
 	md.cf = cloudformation.New(md.ss)
+	log.Println("CI823 : cloudformation ", md.cf)
 	md.ec2 = ec2.New(md.ss)
+	log.Println("CI823 : ec2 ", md.ec2)
 	md.iam = iam.New(md.ss)
+	log.Println("CI823 : iam ", md.iam)
 	md.s3 = s3.New(md.ss)
+	log.Println("CI823 : s3 ", md.s3)
+
 
 	// up to 63 characters
 	// https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-s3-bucket-naming-requirements.html
@@ -132,6 +142,11 @@ func NewDeployer(cfg *ec2config.Config) (Deployer, error) {
 		zap.String("aws-k8s-tester-ec2config-path", cfg.ConfigPath),
 		zap.String("request-started", humanize.RelTime(now, time.Now().UTC(), "ago", "from now")),
 	)
+	log.Println("********************************************************")
+	log.Println("CI823 : md.cfg222 ", md.cfg)
+	log.Println("////////////////////////////////////////////////////////")
+	log.Println("CI823 : md222  ", *md)
+	log.Println("********************************************************")
 	return md, md.cfg.Sync()
 }
 
