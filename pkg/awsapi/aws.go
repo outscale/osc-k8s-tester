@@ -134,22 +134,29 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 		return nil, nil, "", fmt.Errorf("got empty signing name for resolver %q", cfg.ResolverURL)
 	}
 	// support test endpoint (e.g. https://api.beta.us-west-2.wesley.amazonaws.com)
-	if cfg.ResolverURL != "" {
-		cfg.Logger.Info(
-			"setting custom resolver",
-			zap.String("resolver-url", cfg.ResolverURL),
-			zap.String("signing-name", cfg.SigningName),
-		)
 		resolver = endpoints.ResolverFunc(func(service, region string, optFns ...func(*endpoints.Options)) (endpoints.ResolvedEndpoint, error) {
-			if service == "eks" {
-				return endpoints.ResolvedEndpoint{
-					URL:         cfg.ResolverURL,
-					SigningName: cfg.SigningName,
-				}, nil
-			}
+                        if service == endpoints.S3ServiceID {
+                                 return endpoints.ResolvedEndpoint{
+					 URL:           "https://osu.eu-west-2.outscale.com",
+                                       SigningRegion: "eu-west-2",
+                                }, nil
+                        }
+                        if service == endpoints.Ec2ServiceID {
+                                 return endpoints.ResolvedEndpoint{
+					 URL:           "https://fcu.eu-west-2.outscale.com",
+                                       SigningRegion: "eu-west-2",
+                                }, nil
+                        }
+                        if service == endpoints.IamServiceID {
+                                 return endpoints.ResolvedEndpoint{
+					 URL:           "https://eim.eu-west-2.outscale.com",
+                                       SigningRegion: "eu-west-2",
+                                 }, nil
+                         }
+
 			return endpoints.DefaultResolver().EndpointFor(service, region, optFns...)
 		})
-	}
+
 	awsConfig.EndpointResolver = resolver
 	log.Println("CI828: New:awsConfig ", awsConfig)
 	ss, err = session.NewSession(&awsConfig)

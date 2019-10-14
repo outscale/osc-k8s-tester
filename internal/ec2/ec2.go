@@ -318,8 +318,9 @@ func (md *embedded) Add() (err error) {
 		ImageId:     aws.String(md.cfg.ImageID),
 		BlockDeviceMappings: []*ec2.BlockDeviceMapping{
 			{
-				DeviceName: aws.String("/dev/xvda"),
+				DeviceName: aws.String("/dev/xvde"),
 				Ebs: &ec2.EbsBlockDevice{
+                                        VolumeType:          aws.String("gp2"),
 					DeleteOnTermination: aws.Bool(true),
 					VolumeSize:          aws.Int64(md.cfg.VolumeSize),
 				},
@@ -855,8 +856,9 @@ func (md *embedded) createInstances() (err error) {
 					ImageId:     aws.String(md.cfg.ImageID),
 					BlockDeviceMappings: []*ec2.BlockDeviceMapping{
 						{
-							DeviceName: aws.String("/dev/xvda"),
+							DeviceName: aws.String("/dev/xvde"),
 							Ebs: &ec2.EbsBlockDevice{
+                                                                VolumeType:          aws.String("gp2"),
 								DeleteOnTermination: aws.Bool(true),
 								VolumeSize:          aws.Int64(md.cfg.VolumeSize),
 							},
@@ -898,8 +900,9 @@ func (md *embedded) createInstances() (err error) {
 						ImageId:     aws.String(md.cfg.ImageID),
 						BlockDeviceMappings: []*ec2.BlockDeviceMapping{
 							{
-								DeviceName: aws.String("/dev/xvda"),
+								DeviceName: aws.String("/dev/xvde"),
 								Ebs: &ec2.EbsBlockDevice{
+                                                                        VolumeType:          aws.String("gp2"),
 									DeleteOnTermination: aws.Bool(true),
 									VolumeSize:          aws.Int64(md.cfg.VolumeSize),
 								},
@@ -959,8 +962,9 @@ func (md *embedded) createInstances() (err error) {
 				ImageId:     aws.String(md.cfg.ImageID),
 				BlockDeviceMappings: []*ec2.BlockDeviceMapping{
 					{
-						DeviceName: aws.String("/dev/xvda"),
+						DeviceName: aws.String("/dev/xvde"),
 						Ebs: &ec2.EbsBlockDevice{
+                                                        VolumeType:          aws.String("gp2"),
 							DeleteOnTermination: aws.Bool(true),
 							VolumeSize:          aws.Int64(md.cfg.VolumeSize),
 						},
@@ -1254,5 +1258,5 @@ func ConvertEC2Instance(iv *ec2.Instance) (instance ec2config.Instance) {
 // genS3URL returns S3 URL path.
 // e.g. https://s3-us-west-2.amazonaws.com/aws-k8s-tester-20180925/hello-world
 func genS3URL(region, bucket, s3Path string) string {
-	return fmt.Sprintf("https://s3-%s.amazonaws.com/%s/%s", region, bucket, s3Path)
+	return fmt.Sprintf("https://osu.%s.outscale.com/%s/%s", region, bucket, s3Path)
 }
