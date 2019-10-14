@@ -1,6 +1,6 @@
 
 
-WARNING: Pre-alpha. Do not use this in production. Only for testing.
+WARNING: Pre-alpha-2. Do not use this in production. Only for testing.
 
 
 # aws-k8s-tester
