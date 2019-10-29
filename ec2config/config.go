@@ -273,7 +273,7 @@ var defaultConfig = Config{
 	// Amazon Linux 2 AMI (HVM), SSD Volume Type
 	// NOTE: make sure to use the latest AMI for the region
 	// e.g. https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#LaunchInstanceWizard:
-	ImageID:  "ami-72203456",
+        ImageID:  "ami-72203456",
 	UserName: "outscale",
 	//Plugins: []string{
 	//	"update-amazon-linux-2",
@@ -299,9 +299,9 @@ var defaultConfig = Config{
 	KeyCreateSkip: false,
 	KeyCreated:    false,
 
-	VPCCIDR: "10.0.0.0/16",
+	VPCCIDR: "192.168.0.0/16",
 	IngressRulesTCP: map[string]string{
-		"22": "0.0.0.0/0",
+		"22": "172.33.0.0/16",
 	},
 
 	VolumeSize: 40,

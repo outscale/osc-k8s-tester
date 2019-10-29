@@ -31,7 +31,7 @@ func (md *embedded) createSubnets() (err error) {
 
 	md.cfg.SubnetIDs = make([]string, 0, 3)
 	md.cfg.SubnetIDToAvailabilityZone = make(map[string]string, 3)
-	for i, cidr := range []string{subnetCIDR1, subnetCIDR2, subnetCIDR3} {
+	for i, cidr := range []string{subnetCIDR1, subnetCIDR2} {
 		var output *ec2.CreateSubnetOutput
 		output, err = md.ec2.CreateSubnet(&ec2.CreateSubnetInput{
 			VpcId:            aws.String(md.cfg.VPCID),

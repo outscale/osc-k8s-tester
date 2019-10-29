@@ -107,7 +107,7 @@ func NewDeployer(cfg *ec2config.Config) (Deployer, error) {
 	if err != nil {
 		return nil, err
 	}
-	md.cfg.AWSAccountID = *stsOutput.Account
+	md.cfg.AWSAccountID = "027440686109"
 	md.cf = cloudformation.New(md.ss)
 	log.Println("CI823 : cloudformation ", md.cf)
 	md.ec2 = ec2.New(md.ss)

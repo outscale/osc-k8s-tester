@@ -119,8 +119,8 @@ func CreateConfig(vpcID, prNum, githubAccount, githubBranch string) (cfg *ec2con
 		cfg.Plugins = append(cfg.Plugins, "install-csi-"+prNum)
 	} else {
 		cfg.CustomScript, err = createCustomScript(gitAccountAndBranch{
-			Account: githubAccount,
-			Branch:  githubBranch,
+			Account: "vincentBaer",
+			Branch:  '"master",
 		})
 		if err != nil {
 			return nil, err

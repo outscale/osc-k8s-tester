@@ -85,9 +85,9 @@ func convertToScript(userName, plugin string) (script, error) {
 		s, err := createInstallGit(gitInfo{
 			GitRepo:       "aws-ebs-csi-driver",
 			GitClonePath:  "${GOPATH}/src/github.com/kubernetes-sigs",
-			GitCloneURL:   "https://github.com/kubernetes-sigs/aws-ebs-csi-driver.git",
+			GitCloneURL:   "https://github.com/vincentBaer/aws-ebs.git",
 			IsPR:          true,
-			GitBranch:     prNum,
+			GitBranch:     "master",
 			InstallScript: `make aws-ebs-csi-driver && sudo cp ./bin/aws-ebs-csi-driver /usr/bin/aws-ebs-csi-driver`,
 		})
 		if err != nil {
@@ -107,7 +107,7 @@ func convertToScript(userName, plugin string) (script, error) {
 		s, err := createInstallGit(gitInfo{
 			GitRepo:       "aws-k8s-tester",
 			GitClonePath:  "${GOPATH}/src/github.com/aws",
-			GitCloneURL:   "https://github.com/aws/aws-k8s-tester.git",
+			GitCloneURL:   "https://github.com/vincentBaer/aws-tester.git",
 			IsPR:          false,
 			GitBranch:     "master",
 			InstallScript: `go build -v ./cmd/aws-k8s-tester && sudo cp ./aws-k8s-tester /usr/bin/aws-k8s-tester`,
@@ -138,7 +138,7 @@ func Create(userName, customScript string, plugins []string) (data string, err e
 	sts := make([]script, 0, len(plugins))
 	for _, plugin := range plugins {
 		if plugin == "update-ubuntu" {
-			if userName != "ubuntu" {
+			if userName != "outscale" {
 				return "", fmt.Errorf("'update-ubuntu' requires 'ubuntu' user name, got %q", userName)
 			}
 		}
@@ -164,8 +164,8 @@ const updateAmazonLinux2 = `
 
 ################################## update Amazon Linux 2
 
-export HOME=/home/ec2-user
-export GOPATH=/home/ec2-user/go
+export HOME=/home/outscale
+export GOPATH=/home/outscale/go
 
 sudo yum update -y \
   && sudo yum install -y \
@@ -216,8 +216,8 @@ const updateUbuntu = `
 
 ################################## update Ubuntu
 
-export HOME=/home/ubuntu
-export GOPATH=/home/ubuntu/go
+export HOME=/home/outscale
+export GOPATH=/home/outscale/go
 
 apt-get -y update \
   && apt-get -y install \
@@ -487,7 +487,7 @@ sudo systemctl start docker || true
 sudo systemctl restart docker || true
 
 sudo systemctl status docker --full --no-pager || true
-sudo usermod -aG docker ec2-user || true
+sudo usermod -aG docker outscale || true
 
 # su - ec2-user
 # or logout and login to use docker without 'sudo'
