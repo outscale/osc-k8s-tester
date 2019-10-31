@@ -275,20 +275,10 @@ var defaultConfig = Config{
 	// e.g. https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#LaunchInstanceWizard:
         ImageID:  "ami-72203456",
 	UserName: "outscale",
-	//Plugins: []string{
-	//	"update-amazon-linux-2",
-	//	"install-start-docker-amazon-linux-2",
-		// "install-kubeadm-amazon-linux-2-1.13.0",
-//	},
-
-	// Ubuntu Server 16.04 LTS, SSD Volume Type
-	// ImageID:  "ami-076e276d85f524150",
-	// UserName: "ubuntu",
-	// Plugins: []string{
-	// 	"update-ubuntu",
-	// 	"install-start-docker-ubuntu",
-	// 	// "install-kubeadm-ubuntu-1.13.0",
-	// },
+        Plugins: []string{
+          "update-ubuntu",
+          "install-start-docker-ubuntu",
+        },
 
 	// 2 vCPU, 8 GB RAM
 	InstanceType: "t2.medium",

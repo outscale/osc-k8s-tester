@@ -87,7 +87,7 @@ func convertToScript(userName, plugin string) (script, error) {
 			GitClonePath:  "${GOPATH}/src/github.com/kubernetes-sigs",
 			GitCloneURL:   "https://github.com/vincentBaer/aws-ebs.git",
 			IsPR:          true,
-			GitBranch:     "master",
+			GitBranch:     "OSC-MIGRATION",
 			InstallScript: `make aws-ebs-csi-driver && sudo cp ./bin/aws-ebs-csi-driver /usr/bin/aws-ebs-csi-driver`,
 		})
 		if err != nil {
@@ -533,8 +533,8 @@ const installStartDockerUbuntu = `
 sudo apt update -y
 sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
 sudo apt update -y
 apt-cache policy docker-ce || true
@@ -542,7 +542,7 @@ sudo apt install -y docker-ce
 
 sudo systemctl start docker || true
 sudo systemctl status docker --full --no-pager || true
-sudo usermod -aG docker ubuntu || true
+sudo usermod -aG docker ooutscale || true
 
 # su - ubuntu
 # or logout and login to use docker without 'sudo'

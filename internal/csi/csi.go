@@ -102,8 +102,9 @@ func CreateConfig(vpcID, prNum, githubAccount, githubBranch string) (cfg *ec2con
 	cfg.VPCID = vpcID
 	cfg.IngressRulesTCP = map[string]string{"22": "0.0.0.0/0"}
 	cfg.Plugins = []string{
-		"update-amazon-linux-2",
-		"install-go-1.12.7",
+                "update-ubuntu",
+                "install-start-docker-ubuntu",
+                "install-go-1.12.7",
 	}
 	cfg.InstanceProfileFilePath, err = fileutil.WriteTempFile([]byte(policyDocument))
 	if err != nil {
@@ -120,7 +121,7 @@ func CreateConfig(vpcID, prNum, githubAccount, githubBranch string) (cfg *ec2con
 	} else {
 		cfg.CustomScript, err = createCustomScript(gitAccountAndBranch{
 			Account: "vincentBaer",
-			Branch:  '"master",
+			Branch:  "OSC-MIGRATION",
 		})
 		if err != nil {
 			return nil, err
@@ -170,7 +171,7 @@ func (ct *csiTester) RunIntegration() error {
 		return fmt.Errorf("failed to connect SSH (%v)", err)
 	}
 
-	testCmd := fmt.Sprintf(`cd /home/%s/go/src/github.com/kubernetes-sigs/aws-ebs-csi-driver && sudo sh -c 'source /home/%s/.bashrc && ./hack/test-integration.sh'`, ct.cfg.UserName, ct.cfg.UserName)
+	testCmd := fmt.Sprintf(`cd /home/%s/go/src/github.com/kubernetes-sigs/aws-ebs-csi-driver && source /home/%s/.bashrc && ./hack/test-integration.sh`, ct.cfg.UserName, ct.cfg.UserName)
 	out, err := sh.Run(
 		testCmd,
 		ssh.WithTimeout(10*time.Minute),
