@@ -81,7 +81,7 @@ func convertToScript(userName, plugin string) (script, error) {
 		}, nil
 
 	case strings.HasPrefix(plugin, "install-csi-"):
-		prNum := strings.Replace(plugin, "install-csi-", "", -1)
+		//prNum := strings.Replace(plugin, "install-csi-", "", -1)
 		s, err := createInstallGit(gitInfo{
 			GitRepo:       "aws-ebs-csi-driver",
 			GitClonePath:  "${GOPATH}/src/github.com/kubernetes-sigs",
@@ -542,7 +542,7 @@ sudo apt install -y docker-ce
 
 sudo systemctl start docker || true
 sudo systemctl status docker --full --no-pager || true
-sudo usermod -aG docker ooutscale || true
+sudo usermod -aG docker outscale || true
 
 # su - ubuntu
 # or logout and login to use docker without 'sudo'

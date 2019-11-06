@@ -114,9 +114,9 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 	stsOutput.Account = new(string)
 	stsOutput.UserId = new(string)
 	stsOutput.Arn = new(string)
-	*stsOutput.Account = "ebscloud"
-	*stsOutput.UserId = "PLOQ8E39UO4QPJ1LBQHX2JSQC7JIN5M"
-	*stsOutput.Arn = "arn:aws:iam::027440686109:user/ebscloud"
+	*stsOutput.Account = "awsCloud"
+	*stsOutput.UserId = "6YU3EGNHVODO5A9IQPBD9BVLEG5BOE7"
+	*stsOutput.Arn = "arn:aws:iam::334617742942:user/awsCloud"
 	cfg.Logger.Info(
 		"creating AWS session",
 		zap.String("account-id", *stsOutput.Account),
