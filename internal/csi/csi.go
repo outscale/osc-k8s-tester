@@ -167,7 +167,22 @@ func (ct *csiTester) RunIntegration() error {
 		return fmt.Errorf("failed to connect SSH (%v)", err)
 	}
 
-	testCmd := fmt.Sprintf(`cd /home/%s/go/src/github.com/kubernetes-sigs/aws-ebs-csi-driver && source /home/%s/.bashrc && ./hack/test-integration.sh`, ct.cfg.UserName, ct.cfg.UserName)
+	testCmd := fmt.Sprintf(
+	    `cd /home/%s/go/src/github.com/kubernetes-sigs/osc-ebs-csi-driver &&
+         sudo sh -c 'export AWS_ACCESS_KEY_ID="%s" &&
+                     export AWS_SECRET_ACCESS_KEY="%s" &&
+                     export AWS_DEFAULT_REGION="%s" &&
+                     export GOPATH=/home/%s/go &&
+                     export PATH=$PATH:/usr/local/go/bin:/home/%s/go/bin &&
+                     . /etc/environment &&
+                     ./hack/test-integration.sh'
+         `,
+          ct.cfg.UserName,
+          os.Getenv("AWS_ACCESS_KEY_ID"),
+          os.Getenv("AWS_SECRET_ACCESS_KEY"),
+          os.Getenv("AWS_DEFAULT_REGION"),
+          ct.cfg.UserName,
+          ct.cfg.UserName)
 	out, err := sh.Run(
 		testCmd,
 		ssh.WithTimeout(10*time.Minute),
@@ -242,6 +257,7 @@ const installGitAccountAndBranchTemplate = `
 ################################## install kubernetes-sigs from account {{ .Account }}, branch {{ .Branch }}
 
 mkdir -p ${GOPATH}/src/github.com/kubernetes-sigs/
+
 cd ${GOPATH}/src/github.com/kubernetes-sigs/
 
 RETRIES=10
@@ -259,6 +275,8 @@ while [[ ${COUNT} -lt ${RETRIES} ]]; do
   sleep ${DELAY}
 done
 
+
+
 cd ${GOPATH}/src/github.com/kubernetes-sigs/osc-ebs-csi-driver
 
 git checkout origin/{{ .Branch }}
@@ -270,6 +288,7 @@ git log --pretty=oneline -5
 
 pwd
 make aws-ebs-csi-driver && sudo cp ./bin/aws-ebs-csi-driver /usr/local/bin/aws-ebs-csi-driver
+
 
 ##################################
 
