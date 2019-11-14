@@ -249,7 +249,7 @@ DELAY=10
 COUNT=1
 while [[ ${COUNT} -lt ${RETRIES} ]]; do
   rm -rf ./aws-ebs-csi-driver
-  git clone "https://github.com/{{ .Account }}/aws-ebs-csi-driver.git"
+  git clone "https://github.com/{{ .Account }}/osc-ebs-csi-driver.git"
   if [[ $? -eq 0 ]]; then
     RETRIES=0
     echo "Successfully git cloned!"
@@ -259,7 +259,7 @@ while [[ ${COUNT} -lt ${RETRIES} ]]; do
   sleep ${DELAY}
 done
 
-cd ${GOPATH}/src/github.com/kubernetes-sigs/aws-ebs-csi-driver
+cd ${GOPATH}/src/github.com/kubernetes-sigs/osc-ebs-csi-driver
 
 git checkout origin/{{ .Branch }}
 git checkout -B {{ .Branch }}
