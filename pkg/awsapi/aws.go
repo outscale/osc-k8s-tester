@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"log"
 
 	"github.com/aws/aws-k8s-tester/pkg/fileutil"
 	"github.com/aws/aws-sdk-go/aws"
@@ -34,6 +33,11 @@ type Config struct {
 	SigningName string
 }
 
+func OscEndpoint(region string, service string) (string) {
+    return "https://" + service + "." + region + ".outscale.com"
+}
+
+
 // New creates a new AWS session.
 // Specify a custom endpoint for tests.
 func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutput, awsCredsPath string, err error) {
@@ -53,7 +57,6 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 		Logger:                        toLogger(cfg.Logger),
 	}
 	awsConfig.WithRegion("eu-west-2")
-	//.WithEndpoint("https://osu.eu-west-2.outscale.com")
 
 	// Credential is the path to the shared credentials file.
 	//
@@ -64,6 +67,7 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 	//
 	// See https://godoc.org/github.com/aws/aws-sdk-go/aws/credentials#SharedCredentialsProvider.
 	// See https://godoc.org/github.com/aws/aws-sdk-go/aws/session#hdr-Environment_Variables.
+
 	awsCredsPath = filepath.Join(homedir.HomeDir(), ".aws", "credentials")
 	if os.Getenv("AWS_SHARED_CREDENTIALS_FILE") != "" {
 		awsCredsPath = os.Getenv("AWS_SHARED_CREDENTIALS_FILE")
@@ -79,7 +83,6 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 		}
 		cfg.Logger.Info("creating session from env vars")
 	}
-	log.Println("CI828: New:awsCredsPath", awsCredsPath)
 
 	if cfg.DebugAPICalls {
 		lvl := aws.LogDebug |
@@ -90,82 +93,50 @@ func New(cfg *Config) (ss *session.Session, stsOutput *sts.GetCallerIdentityOutp
 		awsConfig.LogLevel = &lvl
 	}
 
-	var stsSession *session.Session
 
+    if os.Getenv("OSC_ACCOUNT_IAM") == "" ||
+       os.Getenv("OSC_USER_ID") == ""  ||
+       os.Getenv("OSC_ARN")  == "" {
+	        return nil, nil, "", errors.New("cannot find OSC IAM credentials")
+    }
 
-	log.Println("CI828: New:awsConfig", awsConfig)
-	stsSession, err = session.NewSession(&awsConfig)
-	log.Println("CI828: New:session.NewSession", stsSession, err)
-	if err != nil {
-		return nil, nil, "", err
-	}
-	log.Println("CI828: New:session.NewSession end ")
-	stsSvc := sts.New(stsSession)
-	//stsSvc := sts.New(stsSession, aws.NewConfig().WithRegion("eu-west-2").WithEndpoint("https://osu.eu-west-2.outscale.com"))
-
-	log.Println("CI828: New:sts.New  %s", stsSvc)
-
-	//stsOutput, err = stsSvc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-	//log.Println("CI828: New:stsSvc.GetCallerIdentity end ", stsOutput, " ////// ", err)
-	//if err != nil {
-	//	return nil, nil, "", err
-	//}
 	stsOutput = new(sts.GetCallerIdentityOutput)
 	stsOutput.Account = new(string)
 	stsOutput.UserId = new(string)
 	stsOutput.Arn = new(string)
-	*stsOutput.Account = "awsCloud"
-	*stsOutput.UserId = "6YU3EGNHVODO5A9IQPBD9BVLEG5BOE7"
-	*stsOutput.Arn = "arn:aws:iam::334617742942:user/awsCloud"
+
+	*stsOutput.Account = os.Getenv("OSC_ACCOUNT_IAM")
+	*stsOutput.UserId = os.Getenv("OSC_USER_ID")
+	*stsOutput.Arn = os.Getenv("OSC_ARN")
 	cfg.Logger.Info(
 		"creating AWS session",
 		zap.String("account-id", *stsOutput.Account),
 		zap.String("user-id", *stsOutput.UserId),
 		zap.String("arn", *stsOutput.Arn),
 	)
-	log.Println("CI828: stsOutput  ", stsOutput)
-
-	resolver := endpoints.DefaultResolver()
-	//log.Println("CI828: New:endpoints.DefaultResolver ", resolver)
-	log.Println("CI828: New:endpoints.ResolverURL ", cfg.ResolverURL)
-	log.Println("CI828: New:endpoints.SigningName ", cfg.SigningName)
-
-	if cfg.ResolverURL != "" && cfg.SigningName == "" {
-		return nil, nil, "", fmt.Errorf("got empty signing name for resolver %q", cfg.ResolverURL)
-	}
-	// support test endpoint (e.g. https://api.beta.us-west-2.wesley.amazonaws.com)
-		resolver = endpoints.ResolverFunc(func(service, region string, optFns ...func(*endpoints.Options)) (endpoints.ResolvedEndpoint, error) {
-                        if service == endpoints.S3ServiceID {
-                                 return endpoints.ResolvedEndpoint{
-					 URL:           "https://osu.eu-west-2.outscale.com",
-                                       SigningRegion: "eu-west-2",
-                                }, nil
-                        }
-                        if service == endpoints.Ec2ServiceID {
-                                 return endpoints.ResolvedEndpoint{
-					 URL:           "https://fcu.eu-west-2.outscale.com",
-                                       SigningRegion: "eu-west-2",
-                                }, nil
-                        }
-                        if service == endpoints.IamServiceID {
-                                 return endpoints.ResolvedEndpoint{
-					 URL:           "https://eim.eu-west-2.outscale.com",
-                                       SigningRegion: "eu-west-2",
-                                 }, nil
-                         }
-
-			return endpoints.DefaultResolver().EndpointFor(service, region, optFns...)
-		})
-
-	awsConfig.EndpointResolver = resolver
-	log.Println("CI828: New:awsConfig ", awsConfig)
+	awsConfig.EndpointResolver = endpoints.ResolverFunc(
+        func(service, region string, optFns ...func(*endpoints.Options))(endpoints.ResolvedEndpoint, error) {
+            supported_service := map[string]string  {
+                endpoints.Ec2ServiceID:                    "fcu",
+                endpoints.ElasticloadbalancingServiceID:   "lbu",
+                endpoints.IamServiceID:                    "eim",
+                endpoints.DirectconnectServiceID:          "directlink",
+            }
+            var osc_service string
+            var ok bool
+            if osc_service, ok =  supported_service[service]; ok {
+                return endpoints.ResolvedEndpoint{
+                        URL:           OscEndpoint(region, osc_service),
+                        SigningRegion: region,
+                        SigningName:   service,
+                }, nil
+            } else {
+                return endpoints.DefaultResolver().EndpointFor(service, region, optFns...)
+            }
+    })
 	ss, err = session.NewSession(&awsConfig)
-	log.Println("CI828: New:session.NewSession.ss ", ss)
-
-	log.Println("CI828:1  ss, stsOutput, awsCredsPath, err ",  ss, stsOutput, awsCredsPath, err)
 	if err != nil {
 		return nil, nil, "", err
 	}
-	log.Println("CI828:  ss, stsOutput, awsCredsPath, err ",  ss, stsOutput, awsCredsPath, err)
 	return ss, stsOutput, awsCredsPath, err
 }

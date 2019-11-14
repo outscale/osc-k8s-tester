@@ -24,6 +24,8 @@ echo "BUILD_TIME:" ${BUILD_TIME}
 
 mkdir -p ./bin
 
+
+
 for os in linux darwin; do
   CGO_ENABLED=0 GOOS=${os} GOARCH=$(go env GOARCH) \
     go build -v -gcflags "-N -l" \
@@ -41,4 +43,4 @@ elif [[ "${OSTYPE}" == "darwin"* ]]; then
   ./bin/aws-k8s-tester-${RELEASE_VERSION}-darwin-$(go env GOARCH) version
 fi
 
-echo "Success!"
+echo "Success! ${OSTYPE}"

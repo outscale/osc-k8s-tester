@@ -4,7 +4,6 @@ package csi
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"reflect"
 	"strings"
@@ -83,12 +82,9 @@ func NewTester(cfg *ec2config.Config, terminateOnExit, journalctlLogs bool) (ct 
 		journalctlLogs:  journalctlLogs,
 		cfg:             cfg,
 	}
-	log.Println("CI823 :  NewTester:ct: %s    CI823 ", ct)
-	log.Println("CI823 :  NewTestercfg: res %s   CI823 ", cfg)
 	if ct.ec, err = ec2.NewDeployer(ct.cfg); err != nil {
 		return nil, fmt.Errorf("failed to create EC2 deployer (%v)", err)
 	}
-	log.Println("CI823 :   ct.ec.Create()   CI823 ")
 	if err = ct.ec.Create(); err != nil {
 		return nil, fmt.Errorf("failed to create EC2 instance (%v)", err)
 	}
@@ -120,7 +116,7 @@ func CreateConfig(vpcID, prNum, githubAccount, githubBranch string) (cfg *ec2con
 		cfg.Plugins = append(cfg.Plugins, "install-csi-"+prNum)
 	} else {
 		cfg.CustomScript, err = createCustomScript(gitAccountAndBranch{
-			Account: "vincentBaer",
+			Account: "outscale-dev",
 			Branch:  "OSC-MIGRATION",
 		})
 		if err != nil {

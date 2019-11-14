@@ -85,7 +85,7 @@ func convertToScript(userName, plugin string) (script, error) {
 		s, err := createInstallGit(gitInfo{
 			GitRepo:       "aws-ebs-csi-driver",
 			GitClonePath:  "${GOPATH}/src/github.com/kubernetes-sigs",
-			GitCloneURL:   "https://github.com/vincentBaer/aws-ebs.git",
+			GitCloneURL:   "https://github.com/outscale-dev/osc-ebs-csi-driver.git",
 			IsPR:          true,
 			GitBranch:     "OSC-MIGRATION",
 			InstallScript: `make aws-ebs-csi-driver && sudo cp ./bin/aws-ebs-csi-driver /usr/bin/aws-ebs-csi-driver`,
@@ -107,7 +107,7 @@ func convertToScript(userName, plugin string) (script, error) {
 		s, err := createInstallGit(gitInfo{
 			GitRepo:       "aws-k8s-tester",
 			GitClonePath:  "${GOPATH}/src/github.com/aws",
-			GitCloneURL:   "https://github.com/vincentBaer/aws-tester.git",
+			GitCloneURL:   "https://github.com/outscale-dev/osc-k8s-tester.git",
 			IsPR:          false,
 			GitBranch:     "master",
 			InstallScript: `go build -v ./cmd/aws-k8s-tester && sudo cp ./aws-k8s-tester /usr/bin/aws-k8s-tester`,

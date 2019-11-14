@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"time"
-	"log"
 
 	"github.com/aws/aws-k8s-tester/internal/csi"
 	"github.com/spf13/cobra"
@@ -64,7 +63,6 @@ func testIntegrationFunc(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "no timeout specified (%q)\n", timeout)
 		os.Exit(1)
 	}
-	log.Println("CI823: testIntegrationFunc: %s", cmd, " %s ", args)
 
 	lg, err := zap.NewProduction()
 	if err != nil {
@@ -78,13 +76,11 @@ func testIntegrationFunc(cmd *cobra.Command, args []string) {
 		zap.String("github-branch", githubBranch),
 		zap.Duration("timeout", timeout),
 	)
-	log.Println("CI823: testIntegrationFunc:CreateConfig %s/%s/%s/%s", vpcID, prNum, githubAccount, githubBranch)
 	cfg, err := csi.CreateConfig(vpcID, prNum, githubAccount, githubBranch)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error while config: (%v)\n", err)
 		os.Exit(1)
 	}
-	log.Println("CI823: testIntegrationFunc:cfg  %s", cfg)
 
 	ct, err := csi.NewTester(cfg, terminateOnExit, journalctlLogs)
 	if err != nil {

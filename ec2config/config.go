@@ -244,6 +244,12 @@ func genTag() string {
 // NewDefault returns a copy of the default configuration.
 func NewDefault() *Config {
 	vv := defaultConfig
+	if os.Getenv("OS_AMI") != "" {
+	    vv.ImageID = os.Getenv("OS_AMI")
+	}
+	if os.Getenv("OS_AMI_PLUGINS") != "" {
+	    vv.Plugins = strings.Split(os.Getenv("OS_AMI_PLUGINS"), ":")
+	}
 	return &vv
 }
 
@@ -273,12 +279,12 @@ var defaultConfig = Config{
 	// Amazon Linux 2 AMI (HVM), SSD Volume Type
 	// NOTE: make sure to use the latest AMI for the region
 	// e.g. https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#LaunchInstanceWizard:
-        ImageID:  "ami-72203456",
-	UserName: "outscale",
-        Plugins: []string{
-          "update-ubuntu",
-          "install-start-docker-ubuntu",
-        },
+    ImageID:  "ami-72203456",
+    UserName: "outscale",
+    Plugins: []string{
+      "update-ubuntu",
+      "install-start-docker-ubuntu",
+    },
 
 	// 2 vCPU, 8 GB RAM
 	InstanceType: "t2.medium",
