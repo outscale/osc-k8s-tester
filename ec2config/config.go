@@ -279,7 +279,7 @@ var defaultConfig = Config{
 	// Amazon Linux 2 AMI (HVM), SSD Volume Type
 	// NOTE: make sure to use the latest AMI for the region
 	// e.g. https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#LaunchInstanceWizard:
-    ImageID:  "ami-72203456",
+    ImageID:  "ami-951aa0f6",
     UserName: "outscale",
     Plugins: []string{
       "update-ubuntu",
